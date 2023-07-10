@@ -1,0 +1,57 @@
+ssh-keygen -t rsa -b 4096 [ give demokey]
+
+1 ssh-keygen -t rsa -b 4096;terraform init;terraform fmt;terraform validate;terraform apply
+2 terraform destory
+3 rm -rf terraform.tfstate* .terraform*
+
+
+provider "aws" {
+  access_key = ""
+  secret_key = ""
+  region     = "us-west-2"
+}
+
+resource "aws_instance" "tform1" {
+  ami             = "ami-0507f77897697c4ba"
+  instance_type   = "t2.micro"
+  security_groups = ["allow_ssh"]
+  key_name        = aws_key_pair.generated_key.key_name
+  tags = {
+    Name = "tform1"
+  }
+}
+
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "Allow ssh inbound traffic"
+
+  ingress {
+    description = "ssh port"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_ssh"
+  }
+}
+
+
+variable "key_pair_name" {
+  type    = string
+  default = "demokeypair"
+}
+
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.key_pair_name
+  public_key = file("demokey.pub")
+}
