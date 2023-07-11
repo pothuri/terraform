@@ -46,12 +46,9 @@ resource "aws_security_group" "allow_ssh" {
 }
 
 
-variable "key_pair_name" {
-  type    = string
-  default = "demokeypair"
-}
+
 
 resource "aws_key_pair" "generated_key" {
-  key_name   = var.key_pair_name
+  key_name   = "demokeypair"
   public_key = file("demokey.pub")
 }
